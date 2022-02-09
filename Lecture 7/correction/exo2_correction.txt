@@ -1,0 +1,56 @@
+UNIX (http://pubs.opengroup.org/onlinepubs/009695399/functions/pthread_rwlock_rdlock.html)
+
+"If the Thread Execution Scheduling option is supported, (...) the calling thread shall not acquire the lock if a writer holds the lock or if writers of higher or equal priority are blocked on the lock; otherwise, the calling thread shall acquire the lock."
+=> attention cette option concerne l'ordonnancement des threads (et non
+   directement la manière de favoriser les lecteurs ou écrivains) mais elle a
+   une influence dessus.
+
+Sans "Thread Execution Scheduling option" => implementation-defined
+
+Les appels peuvent être récursifs pour les lecteurs. Il y a un nombre maximum de verrouillages à définir.
+
+
+
+
+MACOS (man)
+macOS basé sur BSD : https://www.freebsd.org/cgi/man.cgi?query=pthread_rwlock_wrlock
+
+"To prevent writer starvation, writers are favored over readers."
+=> C'est en désaccord avec les observations précédentes
+
+=> La documentation de UNIX permet de comprendre que la "Thread Execution
+   Scheduling option" peut modifier le comportement indiqué mais
+   l'ordonnancement des threads est indiqué comme non supporté sous MacOS High
+   Sierra
+
+
+
+LINUX
+https://linux.die.net/man/3/pthread_rwlock_rdlock
+Même infos que dans la documentation unix : pas d'indication sur l'implémentation spécifique en cas d'absence de l'option "Thread Execution Scheduling".
+
+Le fait de pas avoir la "Thread Execution Scheduling option" explique sans doute que les écrivains soient favorisés. Le dernier processus (écrivain) doit avoir une priorité plus haute (pour qu'il se dépêche de libérer le verrou).
+
+https://linux.die.net/man/3/pthread_rwlock_wrlock
+The Linux implementation of this interface may differ...
+
+
+
+
+LINUX Ubuntu 16.04
+http://manpages.ubuntu.com/manpages/xenial/en/man3/pthread_rwlockattr_setkind_np.3.html
+=> int pthread_rwlockattr_setkind_np(pthread_rwlockattr_t *attr, int pref);
+=> pref = PTHREAD_RWLOCK_PREFER_READER_NP
+   favoriser les lecteurs (bug idem avec PTHREAD_RWLOCK_PREFER_WRITER_NP)
+=> pref = PTHREAD_RWLOCK_PREFER_WRITER_NONRECURSIVE_NP
+   permet de favoriser les lecteurs ou les écrivains, mais pas de rendre
+   équitable.
+   des bugs sont indiqués, l'option PTHREAD_RWLOCK_PREFER_WRITER_NP ne marche
+   pas.
+=> These functions are non-standard GNU extensions; hence the suffix "_np"
+   (non-portable)  in the names.
+
+
+
+Conclusion : la documentation n'est pas claire. Il semble difficile de garantir une exécution identique sous Linux et MacOS en utilisant les verrous rwlock. On ne peut pas implémenter un système équitable sur tous ces OS si on a pas le support pour la "Thread Execution Scheduling option".
+

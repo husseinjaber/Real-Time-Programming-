@@ -1,0 +1,3 @@
+part1:https://www.sanfoundry.com/linux-debugging-questions-answers-posix-threads/
+fork:https://www.geeksforgeeks.org/fork-system-call/
+part2:https://www.sanfoundry.com/tricky-buggy-questions-answers-threads-handling/

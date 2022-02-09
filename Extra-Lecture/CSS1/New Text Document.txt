@@ -1,0 +1,16 @@
+EAGAIN
+
+Try Again
+It is very common to get this error when your application is doing non-blocking operations on files or network sockets. For example, you can open a file/socket/fifo for reading with the O_NONBLOCK flag. If you subsequently do a read(2) call and there is no data waiting, instead of blocking and waiting until there is data ready and returning that data, the read() call will return an error (EAGAIN) to let your application know that there is no data ready and to try again later.
+
+
+
+EAGAIN is often raised when performing non-blocking I/O. It means "there is no data available right now, try again later".
+
+The <errno.h> header file defines the integer variable errno, which
+       is set by system calls and some library functions in the event of an
+       error to indicate what went wrong.
+
+  perror - print a system error message
+
+
